@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Constellation of Us</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background:
+        radial-gradient(circle at center, #101c35 0%, #050914 45%, #02040a 100%);
+    font-family: Arial, sans-serif;
+}
+
+/* =========================
+   SPACE
+========================= */
+
+#space {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* =========================
+   BACKGROUND STARS
+========================= */
+
+.background-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    from {
+        opacity: 0.2;
+        transform: scale(0.7);
+    }
+
+    to {
+        opacity: 0.8;
+        transform: scale(1.5);
+    }
+}
+
+/* =========================
+   CONNECTION LINES
+========================= */
+
+#connections {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.connection {
+    stroke: rgba(150, 200, 255, 0.45);
+    stroke-width: 2;
+    fill: none;
+    filter: drop-shadow(0 0 6px rgba(130, 190, 255, 0.7));
+
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+
+    animation: drawLine 1.2s ease forwards;
+}
+
+@keyframes drawLine {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* =========================
+   CONSTELLATION STARS
+========================= */
+
+.star {
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    transform: translate(-50%, -50%);
+
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: transform 0.4s ease;
+}
+
+.star:hover {
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* outer glow */
+
+.star::before {
+    content: "";
+
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+
+    background: radial-gradient(
+        circle,
+        rgba(120,190,255,0.35),
+        rgba(120,190,255,0.05),
+        transparent 70%
+    );
+
+    opacity: 0.8;
+
+    animation: breathe 3s infinite ease-in-out;
+}
+
+@keyframes breathe {
+
+    0%,100% {
+        transform: scale(0.8);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.9;
+    }
+}
+
+/* star itself */
+
+.star-core {
+
+    position: relative;
+
+    width: 22px;
+    height: 22px;
+
+    background: white;
+
+    clip-path: polygon(
+        50% 0%,
+        61% 38%,
+        100% 50%,
+        61% 62%,
+        50% 100%,
+        39% 62%,
+        0% 50%,
+        39% 38%
+    );
+
+    filter:
+        drop-shadow(0 0 7px white)
+        drop-shadow(0 0 20px #80bfff)
+        drop-shadow(0 0 35px #4d9cff);
+
+    z-index: 2;
+
+    transition: all 0.4s ease;
+}
+
+/* =========================
+   ACTIVATED STAR
+========================= */
+
+.star.active .star-core {
+
+    width: 32px;
+    height: 32px;
+
+    filter:
+        drop-shadow(0 0 10px white)
+        drop-shadow(0 0 25px #8ecaff)
+        drop-shadow(0 0 50px #4d9cff);
+}
+
+.star.active::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 110px;
+    height: 110px;
+
+    border-radius: 50%;
+
+    border: 2px solid rgba(150,210,255,0.7);
+
+    animation: pulse 1.2s ease-out;
+}
+
+@keyframes pulse {
+
+    0% {
+        transform: scale(0.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* =========================
+   PARTICLES
+========================= */
+
+.particle {
+
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    pointer-events: none;
+
+    animation: fly 1.3s ease-out forwards;
+
+    filter: drop-shadow(0 0 8px #8ac7ff);
+}
+
+@keyframes fly {
+
+    from {
+        opacity: 1;
+        transform: translate(0,0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform:
+            translate(
+                var(--x),
+                var(--y)
+            )
+            scale(0);
+    }
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.title {
+
+    position: absolute;
+
+    top: 28px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    text-align: center;
+
+    color: white;
+
+    z-index: 20;
+
+    pointer-events: none;
+}
+
+.title h1 {
+
+    font-size: clamp(28px, 4vw, 60px);
+
+    letter-spacing: 12px;
+
+    font-weight: 300;
+
+    text-shadow:
+        0 0 10px rgba(255,255,255,0.7),
+        0 0 30px #589cff;
+}
+
+.title p {
+
+    margin-top: 8px;
+
+    font-size: 13px;
+
+    letter-spacing: 5px;
+
+    opacity: 0.55;
+}
+
+/* =========================
+   COUNTER
+========================= */
+
+.counter {
+
+    position: absolute;
+
+    bottom: 25px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    color: rgba(255,255,255,0.7);
+
+    font-size: 14px;
+
+    letter-spacing: 4px;
+
+    z-index: 20;
+
+    pointer-events: none;
+}
+
+/* =========================
+   FINAL EFFECT
+========================= */
+
+.final-message {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    color: white;
+
+    font-size: clamp(25px, 4vw, 60px);
+
+    letter-spacing: 10px;
+
+    text-align: center;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    text-shadow:
+        0 0 15px white,
+        0 0 40px #579eff,
+        0 0 80px #579eff;
+
+    transition: opacity 2s ease;
+
+    z-index: 50;
+}
+
+.final-message.show {
+    opacity: 1;
+}
+/* =====================================
+   FINAL SKY
+===================================== */
+
+body.final-sky {
+    animation: skyFinal 4s ease forwards;
+}
+
+@keyframes skyFinal {
+
+    0% {
+        background:
+            radial-gradient(
+                circle at center,
+                #101c35 0%,
+                #050914 45%,
+                #02040a 100%
+            );
+    }
+
+    50% {
+        background:
+            radial-gradient(
+                circle at center,
+                #263f6d 0%,
+                #0a142c 45%,
+                #02040a 100%
+            );
+    }
+
+    100% {
+        background:
+            radial-gradient(
+                circle at center,
+                #162b52 0%,
+                #071226 45%,
+                #02040a 100%
+            );
+    }
+}
+
+
+/* =====================================
+   ALL 31 STARS
+===================================== */
+
+body.complete .star {
+    animation:
+        finalFloat 3s ease-in-out infinite,
+        finalGlow 2s ease-in-out infinite;
+}
+
+body.complete .star-core {
+
+    width: 34px;
+    height: 34px;
+
+    filter:
+        drop-shadow(0 0 12px white)
+        drop-shadow(0 0 30px #9ed5ff)
+        drop-shadow(0 0 60px #579eff)
+        drop-shadow(0 0 100px #579eff);
+}
+
+
+@keyframes finalFloat {
+
+    0%, 100% {
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.15);
+    }
+
+}
+
+
+@keyframes finalGlow {
+
+    0%, 100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.8);
+    }
+
+}
+
+
+/* =====================================
+   LIGHT EXPLOSION
+===================================== */
+
+#finalBurst {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 30px;
+    height: 30px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 0 20px white,
+        0 0 50px #8ac7ff,
+        0 0 100px #579eff,
+        0 0 180px #579eff;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    z-index: 40;
+}
+
+
+body.complete #finalBurst {
+
+    animation:
+        finalExplosion 3s ease-out forwards;
+
+}
+
+
+@keyframes finalExplosion {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.1);
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            scale(35);
+    }
+
+}
+
+
+/* =====================================
+   FINAL MESSAGE
+===================================== */
+
+.final-message {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    color: white;
+
+    font-size:
+        clamp(25px, 4vw, 60px);
+
+    letter-spacing: 10px;
+
+    text-align: center;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    text-shadow:
+        0 0 15px white,
+        0 0 40px #579eff,
+        0 0 80px #579eff;
+
+    transition:
+        opacity 2s ease;
+
+    z-index: 50;
+}
+
+
+.final-message.show {
+    opacity: 1;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div id="space">
+
+    <div class="title">
+        <h1>CONSTELLATION</h1>
+        <p>EVERYONE HAS A PLACE</p>
+    </div>
+
+    <svg id="connections"></svg>
+
+    <div class="counter">
+        <span id="count">0</span> / 31
+    </div>
+
+    <div id="finalMessage" class="final-message">
+        ONE CONSTELLATION
+    </div>
+    <!-- FINAL LIGHT BURST -->
+  <div id="finalBurst"></div>
+
+  <!-- FINAL MESSAGE -->
+  <div id="finalMessage" class="final-message">
+      ONE FRIENDSHIP, A THOUSAND MEANINGS
+  </div>
+
+</div>
+
+
+<script>
+
+/* =====================================
+   CREATE BACKGROUND STARS
+===================================== */
+
+const space = document.getElementById("space");
+
+for(let i = 0; i < 180; i++){
+
+    const star = document.createElement("div");
+
+    star.className = "background-star";
+
+    star.style.left = Math.random() * 100 + "%";
+    star.style.top = Math.random() * 100 + "%";
+
+    star.style.animationDelay =
+        Math.random() * 4 + "s";
+
+    space.appendChild(star);
+}
+
+
+/* =====================================
+   31 MAIN STARS
+
+   x = horizontal position
+   y = vertical position
+
+   They are intentionally VERY spread out.
+===================================== */
+
+const positions = [
+
+    {x: 7,  y: 25},
+    {x: 16, y: 47},
+    {x: 7,  y: 72},
+
+    {x: 25, y: 18},
+    {x: 27, y: 38},
+    {x: 23, y: 66},
+    {x: 27, y: 86},
+
+    {x: 37, y: 27},
+    {x: 36, y: 52},
+    {x: 38, y: 77},
+
+    {x: 48, y: 15},
+    {x: 47, y: 37},
+    {x: 46, y: 62},
+    {x: 48, y: 87},
+
+    {x: 58, y: 24},
+    {x: 59, y: 49},
+    {x: 58, y: 74},
+
+    {x: 70, y: 14},
+    {x: 72, y: 36},
+    {x: 72, y: 61},
+    {x: 69, y: 84},
+
+    {x: 82, y: 23},
+    {x: 84, y: 47},
+    {x: 82, y: 73},
+
+    {x: 94, y: 19},
+    {x: 94, y: 40},
+    {x: 94, y: 63},
+    {x: 93, y: 84},
+
+    {x: 12, y: 90},
+    {x: 50, y: 96},
+    {x: 88, y: 94}
+];
+
+
+/* =====================================
+   CREATE STARS
+===================================== */
+
+const stars = [];
+
+positions.forEach((pos, index) => {
+
+    const star = document.createElement("div");
+
+    star.className = "star";
+
+    star.style.left = pos.x + "%";
+    star.style.top = pos.y + "%";
+
+    star.dataset.index = index;
+
+    const core = document.createElement("div");
+
+    core.className = "star-core";
+
+    star.appendChild(core);
+
+    space.appendChild(star);
+
+    stars.push({
+        element: star,
+        x: pos.x,
+        y: pos.y,
+        active: false
+    });
+
+    star.addEventListener("click", () => activateStar(index));
+
+});
+
+
+/* =====================================
+   SVG
+===================================== */
+
+const svg = document.getElementById("connections");
+
+function createSVGPoint(x, y){
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    return {
+        x: (x / 100) * width,
+        y: (y / 100) * height
+    };
+}
+
+
+/* =====================================
+   ACTIVATE STAR
+===================================== */
+
+let activated = [];
+
+function activateStar(index){
+
+    const star = stars[index];
+
+    if(star.active) return;
+
+    star.active = true;
+
+    star.element.classList.add("active");
+
+    activated.push(index);
+
+    document.getElementById("count").textContent =
+        activated.length;
+
+
+    /* particles */
+
+    createParticles(star);
+
+
+    /* connect to nearby active stars */
+
+    activated.forEach(otherIndex => {
+
+        if(otherIndex === index) return;
+
+        const other = stars[otherIndex];
+
+        const distance = Math.sqrt(
+            Math.pow(star.x - other.x, 2) +
+            Math.pow(star.y - other.y, 2)
+        );
+
+        if(distance < 35){
+
+            createConnection(star, other);
+
+        }
+
+    });
+
+
+   if (activated.length === 31) {
+
+    setTimeout(() => {
+
+        /* START FINAL EFFECT */
+
+        document.body.classList.add("complete");
+
+        document.body.classList.add("final-sky");
+
+
+        /* SHOW FINAL MESSAGE */
+
+        setTimeout(() => {
+
+            document
+                .getElementById("finalMessage")
+                .classList.add("show");
+
+        }, 1800);
+
+
+        /* CREATE MAGIC PARTICLES */
+
+        createFinalParticles();
+
+    }, 700);
+
+}
+
+}
+
+
+/* =====================================
+   CREATE CONNECTION
+===================================== */
+
+function createConnection(a,b){
+
+    const A = createSVGPoint(a.x,a.y);
+    const B = createSVGPoint(b.x,b.y);
+
+    const line =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+        );
+
+    line.setAttribute("x1",A.x);
+    line.setAttribute("y1",A.y);
+
+    line.setAttribute("x2",B.x);
+    line.setAttribute("y2",B.y);
+
+    line.classList.add("connection");
+
+    svg.appendChild(line);
+}
+
+
+/* =====================================
+   PARTICLES
+===================================== */
+
+function createParticles(star){
+
+    const rect =
+        star.element.getBoundingClientRect();
+
+    const centerX =
+        rect.left + rect.width / 2;
+
+    const centerY =
+        rect.top + rect.height / 2;
+
+
+    for(let i = 0; i < 12; i++){
+
+        const particle =
+            document.createElement("div");
+
+        particle.className = "particle";
+
+        particle.style.left =
+            centerX + "px";
+
+        particle.style.top =
+            centerY + "px";
+
+        const angle =
+            Math.random() * Math.PI * 2;
+
+        const distance =
+            30 + Math.random() * 100;
+
+        particle.style.setProperty(
+            "--x",
+            Math.cos(angle) * distance + "px"
+        );
+
+        particle.style.setProperty(
+            "--y",
+            Math.sin(angle) * distance + "px"
+        );
+
+        space.appendChild(particle);
+
+        setTimeout(() => {
+            particle.remove();
+        }, 1400);
+    }
+}
+
+
+/* =====================================
+   RESIZE
+===================================== */
+
+window.addEventListener("resize", () => {
+
+    svg.innerHTML = "";
+
+    /*
+       We don't redraw old connections here.
+       New clicks will create them again.
+    */
+
+});
+
+</script>
+
+</body>
+</html>
